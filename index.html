@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Noul Force Analyzer v1.0.00_260615</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "맑은 고딕", sans-serif;
+    background: #f4f5f7;
+    color: #1f2328;
+    min-height: 100vh;
+  }
+  header {
+    background: #0b1f3a;
+    color: #fff;
+    padding: 16px 24px;
+    border-bottom: 3px solid #1c64f2;
+  }
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.2px; }
+  header .version { font-size: 12px; color: #9ec2ff; font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .wrap { padding: 24px; max-width: 1400px; margin: 0 auto; }
+
+  /* === 드롭 영역 === */
+  .drop {
+    display: block;                 /* ★ label 기본이 inline이라 명시 필요 */
+    width: 100%;
+    border: 2px dashed #b6c2cf;
+    background: #fff;
+    border-radius: 12px;
+    padding: 56px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .drop:hover, .drop.dragover {
+    border-color: #1c64f2;
+    background: #eff5ff;
+  }
+  .drop .ico { font-size: 44px; margin-bottom: 12px; line-height: 1; }
+  .drop .label { font-size: 16px; font-weight: 500; color: #1f2328; }
+  .drop .sub { font-size: 13px; color: #6c7a8a; margin-top: 6px; }
+  .drop .filename { font-size: 13px; color: #1c64f2; margin-top: 10px; font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .drop input { display: none; }
+  .drop.compact { padding: 18px 24px; }
+  .drop.compact .ico { font-size: 20px; margin-bottom: 0; display: inline-block; vertical-align: middle; margin-right: 8px; }
+  .drop.compact .label { display: inline-block; vertical-align: middle; font-size: 13px; font-weight: 400; color: #44546f; }
+  .drop.compact .sub, .drop.compact .filename { display: none; }
+
+  /* === 패널 === */
+  .panel {
+    background: #fff;
+    border-radius: 10px;
+    margin-top: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .panel h2 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #44546f;
+    border-bottom: 1px solid #e6e8eb;
+    padding-bottom: 8px;
+  }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+  .stat {
+    background: #f7f8fa;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 3px solid #1c64f2;
+  }
+  .stat .k { font-size: 11px; color: #6c7a8a; text-transform: uppercase; letter-spacing: 0.4px; }
+  .stat .v { font-size: 18px; font-weight: 600; color: #1f2328; margin-top: 2px; font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .stat .u { font-size: 11px; color: #6c7a8a; margin-left: 3px; font-weight: 400; }
+  .stat.max { border-left-color: #d92d20; }
+  .stat.min { border-left-color: #1570ef; }
+  .stat.avg { border-left-color: #12b76a; }
+
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+  .toolbar .spacer { flex: 1; }
+  .btn {
+    padding: 6px 12px;
+    border: 1px solid #d0d5dd;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #1f2328;
+    transition: all 0.1s;
+  }
+  .btn:hover { background: #f4f5f7; border-color: #98a2b3; }
+  .btn.primary { background: #1c64f2; color: #fff; border-color: #1c64f2; }
+  .btn.primary:hover { background: #1554d3; border-color: #1554d3; }
+  .hint { font-size: 11px; color: #6c7a8a; }
+
+  .chart-box { position: relative; height: 480px; }
+
+  .hidden { display: none !important; }
+  .err { color: #d92d20; background: #fef3f2; border: 1px solid #fda29b; padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-top: 10px; }
+  footer { text-align: center; padding: 24px; color: #98a2b3; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>Noul Force Analyzer</h1>
+    <span class="version">v1.0.00_260615</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <label class="drop" id="drop">
+    <div class="ico">📂</div>
+    <div class="label">CSV 파일을 끌어다 놓거나 클릭하여 선택</div>
+    <div class="sub">10Hz 샘플링 데이터 · 시간 vs 힘(N) 그래프</div>
+    <div class="filename" id="filename"></div>
+    <input type="file" id="file" accept=".csv">
+  </label>
+
+  <div id="error" class="err hidden"></div>
+
+  <div id="results" class="hidden">
+
+    <div class="panel">
+      <h2>요약 통계</h2>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Force vs Time</h2>
+      <div class="toolbar">
+        <span class="hint">마우스 휠로 확대/축소 · 드래그로 이동</span>
+        <div class="spacer"></div>
+        <button class="btn" id="resetZoom">줌 초기화</button>
+        <button class="btn primary" id="downloadPng">PNG 저장</button>
+      </div>
+      <div class="chart-box">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<footer>Noul Force Analyzer · 10Hz CSV → Time-Force Plot</footer>
+
+<script>
+const SAMPLE_RATE_HZ = 10;
+const DT = 1 / SAMPLE_RATE_HZ; // 0.1s
+
+const dropEl = document.getElementById('drop');
+const fileEl = document.getElementById('file');
+const filenameEl = document.getElementById('filename');
+const resultsEl = document.getElementById('results');
+const statsEl = document.getElementById('stats');
+const errEl = document.getElementById('error');
+let chart = null;
+let loadedFilename = 'noul_force';
+
+/* ★ label이 input을 감싸고 있으므로 click 핸들러는 추가하지 않는다
+   (브라우저가 label 클릭 시 자동으로 input.click() 트리거함) */
+
+dropEl.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropEl.classList.add('dragover');
+});
+dropEl.addEventListener('dragleave', () => dropEl.classList.remove('dragover'));
+dropEl.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropEl.classList.remove('dragover');
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+
+fileEl.addEventListener('change', (e) => {
+  if (e.target.files.length) {
+    handleFile(e.target.files[0]);
+    /* 같은 파일을 다시 선택해도 change 이벤트가 발생하도록 value 리셋 */
+    e.target.value = '';
+  }
+});
+
+function showError(msg) {
+  errEl.textContent = '⚠ ' + msg;
+  errEl.classList.remove('hidden');
+}
+function clearError() { errEl.classList.add('hidden'); errEl.textContent = ''; }
+
+function handleFile(file) {
+  clearError();
+  loadedFilename = file.name.replace(/\.[^.]+$/, '');
+  filenameEl.textContent = '📄 ' + file.name;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try { parseAndPlot(e.target.result); }
+    catch (err) { showError('파싱 실패: ' + err.message); }
+  };
+  reader.onerror = () => showError('파일을 읽을 수 없습니다.');
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseAndPlot(text) {
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  if (lines.length < 7) throw new Error('데이터가 충분하지 않습니다.');
+
+  const meta = {};
+  for (let i = 0; i < Math.min(5, lines.length); i++) {
+    const c = lines[i].split(',');
+    const key = (c[0] || '').trim();
+    const val = (c[1] || '').trim();
+    const at  = (c[3] || '').trim();
+    if (key) meta[key] = { val, at };
+  }
+
+  let headerIdx = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].split(',')[0].trim() === '번호') { headerIdx = i; break; }
+  }
+  if (headerIdx === -1) throw new Error('컬럼 헤더(번호) 행을 찾을 수 없습니다.');
+
+  const header = lines[headerIdx].split(',').map(s => s.trim());
+  const forceCol = header.findIndex(h => h === '무력' || /force/i.test(h));
+  if (forceCol < 0) throw new Error('"무력" 컬럼을 찾을 수 없습니다.');
+
+  const times = [];
+  const forces = [];
+  for (let i = headerIdx + 1; i < lines.length; i++) {
+    const cols = lines[i].split(',');
+    const idx = parseInt(cols[0], 10);
+    const f = parseFloat(cols[forceCol]);
+    if (!Number.isFinite(idx) || !Number.isFinite(f)) continue;
+    times.push((idx - 1) * DT);
+    forces.push(f);
+  }
+  if (forces.length === 0) throw new Error('유효한 데이터 행이 없습니다.');
+
+  const calcMax = Math.max(...forces);
+  const calcMin = Math.min(...forces);
+  const calcAvg = forces.reduce((a, b) => a + b, 0) / forces.length;
+  const maxIdx = forces.indexOf(calcMax) + 1;
+  const minIdx = forces.indexOf(calcMin) + 1;
+
+  const stats = {
+    max:   { v: meta['최대치']?.val ?? calcMax.toFixed(2), at: meta['최대치']?.at ?? ('No.' + maxIdx) },
+    min:   { v: meta['최소치']?.val ?? calcMin.toFixed(2), at: meta['최소치']?.at ?? ('No.' + minIdx) },
+    avg:   { v: meta['평균']?.val   ?? calcAvg.toFixed(3) },
+    count: { v: meta['데이터수']?.val ?? String(forces.length) },
+    ng:    { v: meta['NG수']?.val   ?? '0' },
+    dur:   { v: ((forces.length - 1) * DT).toFixed(1) }
+  };
+
+  renderStats(stats);
+  renderChart(times, forces);
+
+  dropEl.classList.add('compact');   /* 결과가 보이면 드롭존을 컴팩트하게 */
+  resultsEl.classList.remove('hidden');
+}
+
+function renderStats(s) {
+  statsEl.innerHTML = `
+    <div class="stat max">
+      <div class="k">최대치</div>
+      <div class="v">${s.max.v}<span class="u">N</span></div>
+      <div class="k" style="margin-top:2px">@ ${s.max.at}</div>
+    </div>
+    <div class="stat min">
+      <div class="k">최소치</div>
+      <div class="v">${s.min.v}<span class="u">N</span></div>
+      <div class="k" style="margin-top:2px">@ ${s.min.at}</div>
+    </div>
+    <div class="stat avg">
+      <div class="k">평균</div>
+      <div class="v">${s.avg.v}<span class="u">N</span></div>
+    </div>
+    <div class="stat">
+      <div class="k">데이터수</div>
+      <div class="v">${s.count.v}</div>
+    </div>
+    <div class="stat">
+      <div class="k">측정 시간</div>
+      <div class="v">${s.dur.v}<span class="u">s</span></div>
+    </div>
+    <div class="stat">
+      <div class="k">NG 수</div>
+      <div class="v">${s.ng.v}</div>
+    </div>
+  `;
+}
+
+function renderChart(times, forces) {
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  const data = times.map((t, i) => ({ x: t, y: forces[i] }));
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: 'Force',
+        data: data,
+        borderColor: '#1c64f2',
+        backgroundColor: 'rgba(28, 100, 242, 0.08)',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        pointHoverBackgroundColor: '#1c64f2',
+        tension: 0,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 10,
+          titleFont: { size: 12, weight: '600' },
+          bodyFont: { size: 12 },
+          callbacks: {
+            title: (items) => `t = ${items[0].parsed.x.toFixed(2)} s`,
+            label: (item) => `Force: ${item.parsed.y.toFixed(2)} N`
+          }
+        },
+        zoom: {
+          pan: { enabled: true, mode: 'xy' },
+          zoom: {
+            wheel: { enabled: true },
+            pinch: { enabled: true },
+            mode: 'xy'
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: { display: true, text: 'Time (s)', font: { size: 13, weight: '600' }, color: '#44546f' },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { color: '#6c7a8a', callback: (v) => Number(v).toFixed(1) }
+        },
+        y: {
+          title: { display: true, text: 'Force (N)', font: { size: 13, weight: '600' }, color: '#44546f' },
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { color: '#6c7a8a' }
+        }
+      }
+    }
+  });
+}
+
+document.getElementById('resetZoom').addEventListener('click', () => {
+  if (chart) chart.resetZoom();
+});
+
+document.getElementById('downloadPng').addEventListener('click', () => {
+  if (!chart) return;
+  const src = chart.canvas;
+  const tmp = document.createElement('canvas');
+  tmp.width = src.width;
+  tmp.height = src.height;
+  const tctx = tmp.getContext('2d');
+  tctx.fillStyle = '#ffffff';
+  tctx.fillRect(0, 0, tmp.width, tmp.height);
+  tctx.drawImage(src, 0, 0);
+  const url = tmp.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = loadedFilename + '_force_plot.png';
+  a.click();
+});
+</script>
+
+</body>
+</html>
