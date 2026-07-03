@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>Noul Force Analyzer v1.0.00_260615</title>
+<title>Noul Force Analyzer v1.0.01_260703</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <style>
@@ -238,7 +238,7 @@
 <header>
   <div class="header-inner">
     <h1>Noul Force Analyzer</h1>
-    <span class="version">v1.0.00_260615</span>
+    <span class="version">v1.0.01_260703</span>
   </div>
 </header>
 
@@ -247,7 +247,7 @@
   <label class="drop" id="drop">
     <div class="ico">📂</div>
     <div class="label">CSV 파일을 끌어다 놓거나 클릭하여 선택</div>
-    <div class="sub">10Hz 샘플링 데이터 · 시간 vs 힘(N) 그래프 · 최대 3개 비교</div>
+    <div class="sub">10Hz 샘플링 데이터 · 시간 vs 힘(N) 그래프 · 최대 10개 비교</div>
     <input type="file" id="file" accept=".csv" multiple>
   </label>
 
@@ -297,13 +297,21 @@
 <script>
 const SAMPLE_RATE_HZ = 10;
 const DT = 1 / SAMPLE_RATE_HZ;
-const MAX_FILES = 3;
+const MAX_FILES = 10;
 const HIT_PIXEL_TOLERANCE = 25;
 
+/* 10개까지 시각적으로 구분되는 색상 팔레트 */
 const COLORS = [
-  { name: 'blue',  border: '#1c64f2', bg: 'rgba(28, 100, 242, 0.10)' },
-  { name: 'red',   border: '#d92d20', bg: 'rgba(217, 45, 32, 0.10)'  },
-  { name: 'green', border: '#12b76a', bg: 'rgba(18, 183, 106, 0.10)' },
+  { name: 'blue',    border: '#1c64f2', bg: 'rgba(28, 100, 242, 0.10)' },
+  { name: 'red',     border: '#d92d20', bg: 'rgba(217, 45, 32, 0.10)'  },
+  { name: 'green',   border: '#12b76a', bg: 'rgba(18, 183, 106, 0.10)' },
+  { name: 'orange',  border: '#f79009', bg: 'rgba(247, 144, 9, 0.10)'  },
+  { name: 'violet',  border: '#7a5af8', bg: 'rgba(122, 90, 248, 0.10)' },
+  { name: 'cyan',    border: '#06aed4', bg: 'rgba(6, 174, 212, 0.10)'  },
+  { name: 'pink',    border: '#ee46bc', bg: 'rgba(238, 70, 188, 0.10)' },
+  { name: 'yellow',  border: '#eaaa08', bg: 'rgba(234, 170, 8, 0.10)'  },
+  { name: 'teal',    border: '#0e9384', bg: 'rgba(14, 147, 132, 0.10)' },
+  { name: 'slate',   border: '#475467', bg: 'rgba(71, 84, 103, 0.10)'  },
 ];
 
 const dropEl = document.getElementById('drop');
