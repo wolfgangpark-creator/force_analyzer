@@ -31,9 +31,9 @@
   header .version { font-size: 12px; color: #9ec2ff; font-family: "SF Mono", Menlo, Consolas, monospace; }
   .wrap { padding: 24px; max-width: 1400px; margin: 0 auto; }
 
-  /* === 드롭 영역 === */
+  /* 드롭존 */
   .drop {
-    display: block;                 /* ★ label 기본이 inline이라 명시 필요 */
+    display: block;
     width: 100%;
     border: 2px dashed #b6c2cf;
     background: #fff;
@@ -51,14 +51,14 @@
   .drop .ico { font-size: 44px; margin-bottom: 12px; line-height: 1; }
   .drop .label { font-size: 16px; font-weight: 500; color: #1f2328; }
   .drop .sub { font-size: 13px; color: #6c7a8a; margin-top: 6px; }
-  .drop .filename { font-size: 13px; color: #1c64f2; margin-top: 10px; font-family: "SF Mono", Menlo, Consolas, monospace; }
   .drop input { display: none; }
-  .drop.compact { padding: 18px 24px; }
-  .drop.compact .ico { font-size: 20px; margin-bottom: 0; display: inline-block; vertical-align: middle; margin-right: 8px; }
+  .drop.compact { padding: 16px 24px; }
+  .drop.compact .ico { font-size: 18px; margin-bottom: 0; display: inline-block; vertical-align: middle; margin-right: 8px; }
   .drop.compact .label { display: inline-block; vertical-align: middle; font-size: 13px; font-weight: 400; color: #44546f; }
-  .drop.compact .sub, .drop.compact .filename { display: none; }
+  .drop.compact .sub { display: none; }
+  .drop.full { border-color: #d0d5dd; background: #f7f8fa; cursor: not-allowed; opacity: 0.55; }
 
-  /* === 패널 === */
+  /* 패널 */
   .panel {
     background: #fff;
     border-radius: 10px;
@@ -66,29 +66,145 @@
     padding: 18px 20px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
-  .panel h2 {
-    margin: 0 0 12px 0;
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e6e8eb;
+  }
+  .panel-head h2 {
+    margin: 0;
     font-size: 14px;
     font-weight: 600;
     color: #44546f;
-    border-bottom: 1px solid #e6e8eb;
-    padding-bottom: 8px;
   }
 
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-  .stat {
-    background: #f7f8fa;
+  /* 파일 리스트 */
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     padding: 10px 12px;
+    background: #f7f8fa;
     border-radius: 6px;
-    border-left: 3px solid #1c64f2;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
   }
-  .stat .k { font-size: 11px; color: #6c7a8a; text-transform: uppercase; letter-spacing: 0.4px; }
-  .stat .v { font-size: 18px; font-weight: 600; color: #1f2328; margin-top: 2px; font-family: "SF Mono", Menlo, Consolas, monospace; }
-  .stat .u { font-size: 11px; color: #6c7a8a; margin-left: 3px; font-weight: 400; }
-  .stat.max { border-left-color: #d92d20; }
-  .stat.min { border-left-color: #1570ef; }
-  .stat.avg { border-left-color: #12b76a; }
+  .file-row:last-child { margin-bottom: 0; }
+  .file-name { font-weight: 500; font-size: 13px; color: #1f2328; flex: 1; min-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-meta { font-size: 12px; color: #6c7a8a; font-family: "SF Mono", Menlo, Consolas, monospace; white-space: nowrap; }
+  .color-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+  .x-btn {
+    border: 0;
+    background: transparent;
+    color: #6c7a8a;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    line-height: 1;
+  }
+  .x-btn:hover { background: #e6e8eb; color: #d92d20; }
 
+  /* 오프셋 컨트롤 */
+  .offset-ctrl {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    padding: 2px 4px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+  }
+  .offset-ctrl .lbl { color: #6c7a8a; padding: 0 4px; }
+  .offset-ctrl .step {
+    border: 0;
+    background: transparent;
+    color: #44546f;
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1;
+    padding: 0;
+  }
+  .offset-ctrl .step:hover { background: #f4f5f7; color: #1c64f2; }
+  .offset-ctrl input {
+    width: 56px;
+    border: 0;
+    background: transparent;
+    text-align: center;
+    font: inherit;
+    font-weight: 600;
+    color: #1f2328;
+    padding: 4px 0;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .offset-ctrl input::-webkit-outer-spin-button,
+  .offset-ctrl input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .offset-ctrl .reset {
+    border: 0;
+    background: transparent;
+    color: #6c7a8a;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .offset-ctrl .reset:hover { background: #f4f5f7; color: #1c64f2; }
+  .offset-ctrl .reset:disabled { color: #d0d5dd; cursor: default; background: transparent; }
+
+  /* 통계 테이블 */
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .stats-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: #f7f8fa;
+    color: #44546f;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid #e6e8eb;
+  }
+  .stats-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e6e8eb;
+    vertical-align: middle;
+  }
+  .stats-table tr:last-child td { border-bottom: 0; }
+  .stats-table .name-cell { display: flex; align-items: center; gap: 8px; }
+  .stats-table .num {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 600;
+    color: #1f2328;
+    white-space: nowrap;
+  }
+  .stats-table .at {
+    font-weight: 400;
+    font-size: 11px;
+    color: #6c7a8a;
+    margin-left: 4px;
+  }
+
+  /* 차트 영역 */
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
   .toolbar .spacer { flex: 1; }
   .btn {
@@ -104,9 +220,13 @@
   .btn:hover { background: #f4f5f7; border-color: #98a2b3; }
   .btn.primary { background: #1c64f2; color: #fff; border-color: #1c64f2; }
   .btn.primary:hover { background: #1554d3; border-color: #1554d3; }
+  .btn.danger { color: #d92d20; }
+  .btn.danger:hover { background: #fef3f2; border-color: #fda29b; }
   .hint { font-size: 11px; color: #6c7a8a; }
 
   .chart-box { position: relative; height: 480px; }
+  .chart-box.dragging-series canvas { cursor: ew-resize !important; }
+  .chart-box.hover-series canvas { cursor: ew-resize; }
 
   .hidden { display: none !important; }
   .err { color: #d92d20; background: #fef3f2; border: 1px solid #fda29b; padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-top: 10px; }
@@ -127,9 +247,8 @@
   <label class="drop" id="drop">
     <div class="ico">📂</div>
     <div class="label">CSV 파일을 끌어다 놓거나 클릭하여 선택</div>
-    <div class="sub">10Hz 샘플링 데이터 · 시간 vs 힘(N) 그래프</div>
-    <div class="filename" id="filename"></div>
-    <input type="file" id="file" accept=".csv">
+    <div class="sub">10Hz 샘플링 데이터 · 시간 vs 힘(N) 그래프 · 최대 3개 비교</div>
+    <input type="file" id="file" accept=".csv" multiple>
   </label>
 
   <div id="error" class="err hidden"></div>
@@ -137,19 +256,34 @@
   <div id="results" class="hidden">
 
     <div class="panel">
-      <h2>요약 통계</h2>
-      <div class="stats" id="stats"></div>
+      <div class="panel-head">
+        <h2>불러온 파일 <span id="fileCount" style="color:#6c7a8a;font-weight:400;"></span></h2>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" id="resetAllOffsets">시간 정렬 초기화</button>
+          <button class="btn danger" id="clearAll">모두 제거</button>
+        </div>
+      </div>
+      <div id="fileList"></div>
     </div>
 
     <div class="panel">
-      <h2>Force vs Time</h2>
+      <div class="panel-head">
+        <h2>요약 통계</h2>
+      </div>
+      <div id="stats"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Force vs Time</h2>
+      </div>
       <div class="toolbar">
-        <span class="hint">마우스 휠로 확대/축소 · 드래그로 이동</span>
+        <span class="hint">💡 라인을 클릭 후 좌우로 드래그하여 시간 정렬 · Shift+드래그로 화면 이동 · 휠로 확대/축소</span>
         <div class="spacer"></div>
         <button class="btn" id="resetZoom">줌 초기화</button>
         <button class="btn primary" id="downloadPng">PNG 저장</button>
       </div>
-      <div class="chart-box">
+      <div class="chart-box" id="chartBox">
         <canvas id="chart"></canvas>
       </div>
     </div>
@@ -162,60 +296,128 @@
 
 <script>
 const SAMPLE_RATE_HZ = 10;
-const DT = 1 / SAMPLE_RATE_HZ; // 0.1s
+const DT = 1 / SAMPLE_RATE_HZ;
+const MAX_FILES = 3;
+const HIT_PIXEL_TOLERANCE = 25;
+
+const COLORS = [
+  { name: 'blue',  border: '#1c64f2', bg: 'rgba(28, 100, 242, 0.10)' },
+  { name: 'red',   border: '#d92d20', bg: 'rgba(217, 45, 32, 0.10)'  },
+  { name: 'green', border: '#12b76a', bg: 'rgba(18, 183, 106, 0.10)' },
+];
 
 const dropEl = document.getElementById('drop');
 const fileEl = document.getElementById('file');
-const filenameEl = document.getElementById('filename');
 const resultsEl = document.getElementById('results');
+const fileListEl = document.getElementById('fileList');
+const fileCountEl = document.getElementById('fileCount');
 const statsEl = document.getElementById('stats');
 const errEl = document.getElementById('error');
+const chartBoxEl = document.getElementById('chartBox');
 let chart = null;
-let loadedFilename = 'noul_force';
+let loadedFiles = [];
 
-/* ★ label이 input을 감싸고 있으므로 click 핸들러는 추가하지 않는다
-   (브라우저가 label 클릭 시 자동으로 input.click() 트리거함) */
-
+/* ===== 파일 입력 ===== */
 dropEl.addEventListener('dragover', (e) => {
   e.preventDefault();
-  dropEl.classList.add('dragover');
+  if (loadedFiles.length < MAX_FILES) dropEl.classList.add('dragover');
 });
 dropEl.addEventListener('dragleave', () => dropEl.classList.remove('dragover'));
 dropEl.addEventListener('drop', (e) => {
   e.preventDefault();
   dropEl.classList.remove('dragover');
-  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length) handleFiles(Array.from(e.dataTransfer.files));
 });
-
 fileEl.addEventListener('change', (e) => {
   if (e.target.files.length) {
-    handleFile(e.target.files[0]);
-    /* 같은 파일을 다시 선택해도 change 이벤트가 발생하도록 value 리셋 */
+    handleFiles(Array.from(e.target.files));
     e.target.value = '';
   }
 });
 
-function showError(msg) {
-  errEl.textContent = '⚠ ' + msg;
-  errEl.classList.remove('hidden');
-}
-function clearError() { errEl.classList.add('hidden'); errEl.textContent = ''; }
-
-function handleFile(file) {
+/* ===== 상단 버튼 ===== */
+document.getElementById('clearAll').addEventListener('click', () => {
+  loadedFiles = [];
   clearError();
-  loadedFilename = file.name.replace(/\.[^.]+$/, '');
-  filenameEl.textContent = '📄 ' + file.name;
+  renderAll();
+});
+document.getElementById('resetAllOffsets').addEventListener('click', () => {
+  loadedFiles.forEach(f => f.timeOffset = 0);
+  renderAll();
+});
+document.getElementById('resetZoom').addEventListener('click', () => {
+  if (chart) chart.resetZoom();
+});
 
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try { parseAndPlot(e.target.result); }
-    catch (err) { showError('파싱 실패: ' + err.message); }
-  };
-  reader.onerror = () => showError('파일을 읽을 수 없습니다.');
-  reader.readAsText(file, 'UTF-8');
+/* ===== PNG 저장 ===== */
+document.getElementById('downloadPng').addEventListener('click', () => {
+  if (!chart) return;
+  const src = chart.canvas;
+  const tmp = document.createElement('canvas');
+  tmp.width = src.width;
+  tmp.height = src.height;
+  const tctx = tmp.getContext('2d');
+  tctx.fillStyle = '#ffffff';
+  tctx.fillRect(0, 0, tmp.width, tmp.height);
+  tctx.drawImage(src, 0, 0);
+  const url = tmp.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  const baseName = loadedFiles.length === 1
+    ? loadedFiles[0].baseName
+    : 'comparison_' + loadedFiles.length;
+  a.download = baseName + '_force_plot.png';
+  a.click();
+});
+
+/* ===== 유틸 ===== */
+function showError(msg) { errEl.textContent = '⚠ ' + msg; errEl.classList.remove('hidden'); }
+function clearError() { errEl.classList.add('hidden'); errEl.textContent = ''; }
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function assignColor() {
+  const used = new Set(loadedFiles.map(f => f.color.name));
+  return COLORS.find(c => !used.has(c.name)) || COLORS[0];
 }
 
-function parseAndPlot(text) {
+/* ===== 파일 처리 ===== */
+async function handleFiles(files) {
+  clearError();
+  let limitHit = false;
+  for (const f of files) {
+    if (loadedFiles.length >= MAX_FILES) { limitHit = true; break; }
+    try {
+      const dataset = await readAndParse(f);
+      loadedFiles.push(dataset);
+    } catch (err) {
+      showError(`${f.name}: ${err.message}`);
+    }
+  }
+  if (limitHit) showError(`최대 ${MAX_FILES}개까지만 비교 가능합니다.`);
+  renderAll();
+}
+
+function readAndParse(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = parseCsv(e.target.result);
+        resolve({
+          id: Date.now() + Math.random(),
+          name: file.name,
+          baseName: file.name.replace(/\.[^.]+$/, ''),
+          color: assignColor(),
+          timeOffset: 0,
+          ...parsed,
+        });
+      } catch (err) { reject(err); }
+    };
+    reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+function parseCsv(text) {
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
   if (lines.length < 7) throw new Error('데이터가 충분하지 않습니다.');
@@ -239,8 +441,7 @@ function parseAndPlot(text) {
   const forceCol = header.findIndex(h => h === '무력' || /force/i.test(h));
   if (forceCol < 0) throw new Error('"무력" 컬럼을 찾을 수 없습니다.');
 
-  const times = [];
-  const forces = [];
+  const times = [], forces = [];
   for (let i = headerIdx + 1; i < lines.length; i++) {
     const cols = lines[i].split(',');
     const idx = parseInt(cols[0], 10);
@@ -257,82 +458,209 @@ function parseAndPlot(text) {
   const maxIdx = forces.indexOf(calcMax) + 1;
   const minIdx = forces.indexOf(calcMin) + 1;
 
-  const stats = {
-    max:   { v: meta['최대치']?.val ?? calcMax.toFixed(2), at: meta['최대치']?.at ?? ('No.' + maxIdx) },
-    min:   { v: meta['최소치']?.val ?? calcMin.toFixed(2), at: meta['최소치']?.at ?? ('No.' + minIdx) },
-    avg:   { v: meta['평균']?.val   ?? calcAvg.toFixed(3) },
-    count: { v: meta['데이터수']?.val ?? String(forces.length) },
-    ng:    { v: meta['NG수']?.val   ?? '0' },
-    dur:   { v: ((forces.length - 1) * DT).toFixed(1) }
+  return {
+    times, forces,
+    stats: {
+      max:   { v: meta['최대치']?.val ?? calcMax.toFixed(2), at: meta['최대치']?.at ?? ('No.' + maxIdx) },
+      min:   { v: meta['최소치']?.val ?? calcMin.toFixed(2), at: meta['최소치']?.at ?? ('No.' + minIdx) },
+      avg:   { v: meta['평균']?.val   ?? calcAvg.toFixed(3) },
+      count: { v: meta['데이터수']?.val ?? String(forces.length) },
+      ng:    { v: meta['NG수']?.val   ?? '0' },
+      dur:   { v: ((forces.length - 1) * DT).toFixed(1) },
+    },
   };
-
-  renderStats(stats);
-  renderChart(times, forces);
-
-  dropEl.classList.add('compact');   /* 결과가 보이면 드롭존을 컴팩트하게 */
-  resultsEl.classList.remove('hidden');
 }
 
-function renderStats(s) {
+/* ===== 렌더링 ===== */
+function renderAll() {
+  renderFileList();
+  renderStatsTable();
+  renderChart();
+
+  if (loadedFiles.length > 0) {
+    dropEl.classList.add('compact');
+    resultsEl.classList.remove('hidden');
+  } else {
+    dropEl.classList.remove('compact');
+    resultsEl.classList.add('hidden');
+  }
+
+  if (loadedFiles.length >= MAX_FILES) {
+    dropEl.classList.add('full');
+    dropEl.querySelector('.label').textContent = `최대 ${MAX_FILES}개까지 추가됨 — 비교하려면 파일을 제거하세요`;
+  } else {
+    dropEl.classList.remove('full');
+    dropEl.querySelector('.label').textContent = loadedFiles.length === 0
+      ? 'CSV 파일을 끌어다 놓거나 클릭하여 선택'
+      : `CSV 파일 추가 (${loadedFiles.length}/${MAX_FILES})`;
+  }
+}
+
+function renderFileList() {
+  fileCountEl.textContent = `(${loadedFiles.length}/${MAX_FILES})`;
+  fileListEl.innerHTML = loadedFiles.map(f => `
+    <div class="file-row">
+      <span class="color-dot" style="background:${f.color.border}"></span>
+      <span class="file-name">${escapeHtml(f.name)}</span>
+      <span class="file-meta">${f.stats.count.v} pts · ${f.stats.dur.v}s</span>
+      <span class="offset-ctrl">
+        <span class="lbl">Δt</span>
+        <button class="step" data-id="${f.id}" data-step="-0.1" title="-0.1s">−</button>
+        <input type="number" class="offset-input" data-id="${f.id}" value="${f.timeOffset.toFixed(1)}" step="0.1">
+        <button class="step" data-id="${f.id}" data-step="0.1" title="+0.1s">+</button>
+        <span style="color:#6c7a8a;padding-right:4px;">s</span>
+        <button class="reset" data-id="${f.id}" title="오프셋 리셋" ${f.timeOffset === 0 ? 'disabled' : ''}>↺</button>
+      </span>
+      <button class="x-btn" data-id="${f.id}" data-action="remove" title="제거">✕</button>
+    </div>
+  `).join('');
+
+  /* X 버튼 (제거) */
+  fileListEl.querySelectorAll('.x-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseFloat(btn.dataset.id);
+      loadedFiles = loadedFiles.filter(f => f.id !== id);
+      clearError();
+      renderAll();
+    });
+  });
+
+  /* +/- step 버튼 */
+  fileListEl.querySelectorAll('.step').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseFloat(btn.dataset.id);
+      const step = parseFloat(btn.dataset.step);
+      const file = loadedFiles.find(f => f.id === id);
+      if (file) {
+        file.timeOffset = Math.round((file.timeOffset + step) * 100) / 100;
+        renderFileList();
+        updateChartData();
+      }
+    });
+  });
+
+  /* 숫자 입력 */
+  fileListEl.querySelectorAll('.offset-input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const id = parseFloat(inp.dataset.id);
+      const v = parseFloat(inp.value);
+      const file = loadedFiles.find(f => f.id === id);
+      if (file && Number.isFinite(v)) {
+        file.timeOffset = v;
+        renderFileList();
+        updateChartData();
+      }
+    });
+  });
+
+  /* 리셋 버튼 */
+  fileListEl.querySelectorAll('.reset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseFloat(btn.dataset.id);
+      const file = loadedFiles.find(f => f.id === id);
+      if (file) {
+        file.timeOffset = 0;
+        renderFileList();
+        updateChartData();
+      }
+    });
+  });
+}
+
+function renderStatsTable() {
+  if (loadedFiles.length === 0) { statsEl.innerHTML = ''; return; }
   statsEl.innerHTML = `
-    <div class="stat max">
-      <div class="k">최대치</div>
-      <div class="v">${s.max.v}<span class="u">N</span></div>
-      <div class="k" style="margin-top:2px">@ ${s.max.at}</div>
-    </div>
-    <div class="stat min">
-      <div class="k">최소치</div>
-      <div class="v">${s.min.v}<span class="u">N</span></div>
-      <div class="k" style="margin-top:2px">@ ${s.min.at}</div>
-    </div>
-    <div class="stat avg">
-      <div class="k">평균</div>
-      <div class="v">${s.avg.v}<span class="u">N</span></div>
-    </div>
-    <div class="stat">
-      <div class="k">데이터수</div>
-      <div class="v">${s.count.v}</div>
-    </div>
-    <div class="stat">
-      <div class="k">측정 시간</div>
-      <div class="v">${s.dur.v}<span class="u">s</span></div>
-    </div>
-    <div class="stat">
-      <div class="k">NG 수</div>
-      <div class="v">${s.ng.v}</div>
-    </div>
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th>파일</th>
+          <th>최대치 (N)</th>
+          <th>최소치 (N)</th>
+          <th>평균 (N)</th>
+          <th>데이터수</th>
+          <th>측정시간 (s)</th>
+          <th>NG수</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${loadedFiles.map(f => `
+          <tr>
+            <td>
+              <div class="name-cell">
+                <span class="color-dot" style="background:${f.color.border}"></span>
+                <span>${escapeHtml(f.name)}</span>
+              </div>
+            </td>
+            <td class="num">${f.stats.max.v} <span class="at">@${escapeHtml(f.stats.max.at)}</span></td>
+            <td class="num">${f.stats.min.v} <span class="at">@${escapeHtml(f.stats.min.at)}</span></td>
+            <td class="num">${f.stats.avg.v}</td>
+            <td class="num">${f.stats.count.v}</td>
+            <td class="num">${f.stats.dur.v}</td>
+            <td class="num">${f.stats.ng.v}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
   `;
 }
 
-function renderChart(times, forces) {
-  if (chart) chart.destroy();
-  const ctx = document.getElementById('chart').getContext('2d');
+/* ===== 차트 데이터 빌더 (오프셋 적용) ===== */
+function buildDatasetData(f) {
+  return f.times.map((t, i) => ({ x: t + f.timeOffset, y: f.forces[i] }));
+}
 
-  const data = times.map((t, i) => ({ x: t, y: forces[i] }));
+/* 드래그 중 빠른 업데이트 — 차트 destroy/recreate 없이 데이터만 갱신 */
+function updateChartData() {
+  if (!chart) return;
+  loadedFiles.forEach((f, i) => {
+    if (chart.data.datasets[i]) {
+      chart.data.datasets[i].data = buildDatasetData(f);
+    }
+  });
+  chart.update('none');
+}
+
+function renderChart() {
+  if (chart) { chart.destroy(); chart = null; }
+  if (loadedFiles.length === 0) return;
+
+  const ctx = document.getElementById('chart').getContext('2d');
+  const fillEnabled = loadedFiles.length === 1;
+
+  const datasets = loadedFiles.map(f => ({
+    label: f.name,
+    data: buildDatasetData(f),
+    borderColor: f.color.border,
+    backgroundColor: f.color.bg,
+    borderWidth: 1.5,
+    pointRadius: 0,
+    pointHoverRadius: 4,
+    pointHoverBackgroundColor: f.color.border,
+    tension: 0,
+    fill: fillEnabled,
+  }));
 
   chart = new Chart(ctx, {
     type: 'line',
-    data: {
-      datasets: [{
-        label: 'Force',
-        data: data,
-        borderColor: '#1c64f2',
-        backgroundColor: 'rgba(28, 100, 242, 0.08)',
-        borderWidth: 1.5,
-        pointRadius: 0,
-        pointHoverRadius: 4,
-        pointHoverBackgroundColor: '#1c64f2',
-        tension: 0,
-        fill: true,
-      }]
-    },
+    data: { datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
       interaction: { mode: 'nearest', intersect: false, axis: 'x' },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: {
+            font: { size: 12 },
+            boxWidth: 14,
+            boxHeight: 4,
+            padding: 14,
+            color: '#44546f',
+          },
+        },
         tooltip: {
           backgroundColor: 'rgba(15, 23, 42, 0.95)',
           padding: 10,
@@ -340,54 +668,131 @@ function renderChart(times, forces) {
           bodyFont: { size: 12 },
           callbacks: {
             title: (items) => `t = ${items[0].parsed.x.toFixed(2)} s`,
-            label: (item) => `Force: ${item.parsed.y.toFixed(2)} N`
-          }
+            label: (item) => `${item.dataset.label}: ${item.parsed.y.toFixed(2)} N`,
+          },
         },
         zoom: {
-          pan: { enabled: true, mode: 'xy' },
+          /* Shift+드래그로만 pan (일반 드래그는 시리즈 이동용으로 비워둠) */
+          pan: { enabled: true, mode: 'xy', modifierKey: 'shift' },
           zoom: {
             wheel: { enabled: true },
             pinch: { enabled: true },
-            mode: 'xy'
-          }
-        }
+            mode: 'xy',
+          },
+        },
       },
       scales: {
         x: {
           type: 'linear',
           title: { display: true, text: 'Time (s)', font: { size: 13, weight: '600' }, color: '#44546f' },
           grid: { color: 'rgba(0,0,0,0.06)' },
-          ticks: { color: '#6c7a8a', callback: (v) => Number(v).toFixed(1) }
+          ticks: { color: '#6c7a8a', callback: (v) => Number(v).toFixed(1) },
         },
         y: {
           title: { display: true, text: 'Force (N)', font: { size: 13, weight: '600' }, color: '#44546f' },
           grid: { color: 'rgba(0,0,0,0.06)' },
-          ticks: { color: '#6c7a8a' }
-        }
-      }
-    }
+          ticks: { color: '#6c7a8a' },
+        },
+      },
+    },
   });
 }
 
-document.getElementById('resetZoom').addEventListener('click', () => {
-  if (chart) chart.resetZoom();
+/* ===== 시리즈 드래그 (시간 정렬) ===== */
+let drag = null; /* { fileIdx, startClientX, startOffset } */
+let rafPending = false;
+
+function findNearestSeries(canvasX, canvasY) {
+  if (!chart) return -1;
+  const xVal = chart.scales.x.getValueForPixel(canvasX);
+  let bestIdx = -1, bestDist = Infinity;
+
+  chart.data.datasets.forEach((ds, di) => {
+    const meta = chart.getDatasetMeta(di);
+    if (meta.hidden) return;
+    const data = ds.data;
+    if (!data || data.length < 2) return;
+
+    /* xVal에 인접한 두 점을 이분 탐색으로 찾기 */
+    let lo = 0, hi = data.length - 1;
+    if (xVal < data[0].x || xVal > data[hi].x) return; /* 범위 밖 */
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1;
+      if (data[mid].x <= xVal) lo = mid; else hi = mid;
+    }
+    const p1 = data[lo], p2 = data[hi];
+    const t = p2.x === p1.x ? 0 : (xVal - p1.x) / (p2.x - p1.x);
+    const yInterp = p1.y + (p2.y - p1.y) * t;
+    const pixelY = chart.scales.y.getPixelForValue(yInterp);
+    const dist = Math.abs(pixelY - canvasY);
+    if (dist < bestDist) { bestDist = dist; bestIdx = di; }
+  });
+
+  return bestDist <= HIT_PIXEL_TOLERANCE ? bestIdx : -1;
+}
+
+function getCanvasPoint(e) {
+  const rect = chart.canvas.getBoundingClientRect();
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
+  };
+}
+
+chartBoxEl.addEventListener('mousemove', (e) => {
+  if (!chart || drag) return;
+  if (e.shiftKey) { /* shift는 zoom 플러그인의 pan에 양보 */
+    chartBoxEl.classList.remove('hover-series');
+    return;
+  }
+  const { x, y } = getCanvasPoint(e);
+  const di = findNearestSeries(x, y);
+  chartBoxEl.classList.toggle('hover-series', di >= 0);
 });
 
-document.getElementById('downloadPng').addEventListener('click', () => {
-  if (!chart) return;
-  const src = chart.canvas;
-  const tmp = document.createElement('canvas');
-  tmp.width = src.width;
-  tmp.height = src.height;
-  const tctx = tmp.getContext('2d');
-  tctx.fillStyle = '#ffffff';
-  tctx.fillRect(0, 0, tmp.width, tmp.height);
-  tctx.drawImage(src, 0, 0);
-  const url = tmp.toDataURL('image/png');
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = loadedFilename + '_force_plot.png';
-  a.click();
+chartBoxEl.addEventListener('mousedown', (e) => {
+  if (!chart || e.button !== 0 || e.shiftKey) return;
+  const { x, y } = getCanvasPoint(e);
+  const di = findNearestSeries(x, y);
+  if (di < 0) return;
+  e.preventDefault();
+  drag = {
+    fileIdx: di,
+    startClientX: e.clientX,
+    startOffset: loadedFiles[di].timeOffset,
+  };
+  chartBoxEl.classList.add('dragging-series');
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (!drag) return;
+  const dx = e.clientX - drag.startClientX;
+  /* 픽셀 차이를 시간 차이로 환산 */
+  const t0 = chart.scales.x.getValueForPixel(0);
+  const t1 = chart.scales.x.getValueForPixel(dx);
+  const dt = t1 - t0;
+
+  const file = loadedFiles[drag.fileIdx];
+  file.timeOffset = Math.round((drag.startOffset + dt) * 100) / 100;
+
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(() => {
+      rafPending = false;
+      updateChartData();
+      /* 드래그 중에는 input 값만 빠르게 갱신 (전체 리스트 재렌더링 X) */
+      const input = fileListEl.querySelector(`.offset-input[data-id="${file.id}"]`);
+      if (input) input.value = file.timeOffset.toFixed(1);
+      const resetBtn = fileListEl.querySelector(`.reset[data-id="${file.id}"]`);
+      if (resetBtn) resetBtn.disabled = (file.timeOffset === 0);
+    });
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  if (!drag) return;
+  drag = null;
+  chartBoxEl.classList.remove('dragging-series');
 });
 </script>
 
